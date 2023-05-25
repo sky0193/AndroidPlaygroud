@@ -1,19 +1,25 @@
 package com.example.audiorecorder
 
+import android.content.Context
 import android.content.pm.PackageManager
 import android.media.MediaRecorder
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.widget.ImageButton
+import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 
 const val REQUEST_CODE = 111
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener {
 
     private lateinit var btnRecord: ImageButton
+    private lateinit var tvTimer: TextView
 
     private var permissions = arrayOf(android.Manifest.permission.RECORD_AUDIO)
     private var permissionGranted = false
@@ -24,12 +30,20 @@ class MainActivity : AppCompatActivity() {
     private var isRecording = false
     private var isPaused = false
 
+    private lateinit var vibrator: Vibrator
+
+    private lateinit var  timer: Timer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         btnRecord = findViewById<ImageButton>(R.id.btnRecord)
+        tvTimer = findViewById<TextView>(R.id.tvTimer)
+
+        timer = Timer(this)
+        vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+
 
         permissionGranted = ActivityCompat.checkSelfPermission(this, permissions[0]) == PackageManager.PERMISSION_GRANTED
 
@@ -43,6 +57,7 @@ class MainActivity : AppCompatActivity() {
                 else -> startRecording()
             }
         }
+        vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
     }
 
     override fun onRequestPermissionsResult(
@@ -84,6 +99,8 @@ class MainActivity : AppCompatActivity() {
         btnRecord.setImageResource(R.drawable.ic_pause)
         isRecording = true
         isPaused = false
+
+        timer.start()
     }
 
 
@@ -91,11 +108,23 @@ class MainActivity : AppCompatActivity() {
         recorder.pause()
         isPaused = true
         btnRecord.setImageResource(R.drawable.ic_record)
+
+        timer.pause()
     }
 
     private fun resumeRecording() {
         recorder.resume()
         isPaused = false
         btnRecord.setImageResource(R.drawable.ic_pause)
+
+        timer.start()
+    }
+
+    private fun stopRecording() {
+        timer.stop()
+    }
+
+    override fun onTimerTick(duration: String) {
+        tvTimer.text = duration
     }
 }
