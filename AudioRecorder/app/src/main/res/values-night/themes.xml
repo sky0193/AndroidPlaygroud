@@ -4,5 +4,8 @@
         <!-- Customize your dark theme here. -->
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
         <item name="android:textColor">@color/colorText</item>
+        <item name="rippleColor">@color/grayDarkDisabled</item>
+        <item name="android:statusBarColor" tools:targetAPI="l">@color/statusColor</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 </resources>

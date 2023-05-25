@@ -4,6 +4,10 @@
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
         <item name="android:textColor">@color/colorText</item>
+        <item name="rippleColor">@color/grayDarkDisabled</item>
+
+        <item name="android:statusBarColor" tools:targetAPI="l">@color/statusColor</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="Theme.AudioRecorder" parent="Base.Theme.AudioRecorder" />

@@ -16,4 +16,5 @@
     <color name="darkGray">#A9A9A9</color>
 
     <color name="colorText">#282828</color>
+    <color name="statusColor">#EDEBEB</color>
 </resources>
