@@ -1,5 +1,6 @@
 package com.example.recordreplayapp
 
+import android.content.ContextWrapper
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.media.MediaRecorder
@@ -45,7 +46,7 @@ class MainActivity : AppCompatActivity() {
             mr.setAudioSource(MediaRecorder.AudioSource.MIC)
             mr.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
             mr.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-            mr.setOutputFile(path)
+            mr.setOutputFile(file.toString())
             mr.prepare()
             mr.start()
             button2.isEnabled = true
@@ -62,7 +63,7 @@ class MainActivity : AppCompatActivity() {
         //Play Recording
         button3.setOnClickListener {
             var mp = MediaPlayer()
-            mp.setDataSource(path)
+            mp.setDataSource(file.toString())
             mp.prepare()
             mp.start()
         }
