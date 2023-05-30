@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.os.VibratorManager
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
@@ -20,6 +19,7 @@ class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener {
 
     private lateinit var btnRecord: ImageButton
     private lateinit var tvTimer: TextView
+    private lateinit var waveformView: WaveformView
 
     private var permissions = arrayOf(android.Manifest.permission.RECORD_AUDIO)
     private var permissionGranted = false
@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener {
 
         btnRecord = findViewById<ImageButton>(R.id.btnRecord)
         tvTimer = findViewById<TextView>(R.id.tvTimer)
+        waveformView = findViewById<WaveformView>(R.id.waveformView)
 
         timer = Timer(this)
         vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
@@ -126,5 +127,6 @@ class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener {
 
     override fun onTimerTick(duration: String) {
         tvTimer.text = duration
+        waveformView.addAmplitude(recorder.maxAmplitude.toFloat())
     }
 }
