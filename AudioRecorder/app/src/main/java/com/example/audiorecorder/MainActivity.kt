@@ -1,6 +1,7 @@
 package com.example.audiorecorder
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaRecorder
 import androidx.appcompat.app.AppCompatActivity
@@ -16,12 +17,17 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.room.Room
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
+import java.io.ObjectOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -52,9 +58,14 @@ class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener {
     private var isRecording = false
     private var isPaused = false
 
+    private var duration = ""
+
+
     private lateinit var vibrator: Vibrator
 
     private lateinit var  timer: Timer
+
+    private lateinit var db : AppDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,6 +91,11 @@ class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener {
         timer = Timer(this)
         vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 
+        db = Room.databaseBuilder(
+            this,
+            AppDatabase::class.java,
+            "audioRecords"
+        ).build()
 
         permissionGranted = ActivityCompat.checkSelfPermission(this, permissions[0]) == PackageManager.PERMISSION_GRANTED
 
@@ -94,9 +110,10 @@ class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener {
             }
             vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
         }
+
         btnList.setOnClickListener {
             // TODO
-            Toast.makeText(this, "List button", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, GalleryActivity::class.java))
 
         }
 
@@ -138,6 +155,24 @@ class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener {
         if(newFilename != filename){
             var newFile = File("$dirPath$newFilename.mp3")
             File("$dirPath$filename.mp3").renameTo(newFile)
+        }
+
+        var filePath = "$dirPath$newFilename.mp3"
+        var timestamp = Date().time
+        var ampsPath = "$dirPath$newFilename"
+
+        try {
+            var fileOutputStream = FileOutputStream(ampsPath)
+            var out = ObjectOutputStream(fileOutputStream)
+            out.writeObject(amplitudes)
+            fileOutputStream.close()
+            out.close()
+        }catch(e: IOException){}
+
+        var record = AudioRecord(newFilename, filePath, timestamp, duration, ampsPath)
+
+        GlobalScope.launch {
+            db.audioRecordDao().insert(record)
         }
     }
 
@@ -248,6 +283,7 @@ class MainActivity : AppCompatActivity(), Timer.OnTimerTickListener {
 
     override fun onTimerTick(duration: String) {
         tvTimer.text = duration
+        this.duration = duration.dropLast(3)
         waveformView.addAmplitude(recorder.maxAmplitude.toFloat())
     }
 }
